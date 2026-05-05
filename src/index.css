@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+/* Defence-Grade Industrial Design System */
+
+@layer base {
+  :root {
+    /* Defence Green Theme - Olive/Military Inspired */
+    /* Background: Light Sand/Off-White */
+    --background: 45 24% 95%;
+    /* Foreground: Charcoal Black */
+    --foreground: 0 0% 11%;
+
+    --card: 45 20% 98%;
+    --card-foreground: 0 0% 11%;
+
+    --popover: 45 20% 98%;
+    --popover-foreground: 0 0% 11%;
+
+    /* Primary - Olive/Defence Green */
+    --primary: 153 25% 25%;
+    --primary-foreground: 45 24% 95%;
+
+    /* Secondary - Light Sand tint */
+    --secondary: 45 20% 92%;
+    --secondary-foreground: 153 25% 20%;
+
+    /* Muted */
+    --muted: 45 15% 90%;
+    --muted-foreground: 0 0% 35%;
+
+    /* Accent - Army Gold/Brass */
+    --accent: 43 48% 53%;
+    --accent-foreground: 0 0% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Gunmetal Grey for borders */
+    --border: 0 0% 43%;
+    --input: 0 0% 80%;
+    --ring: 43 48% 53%;
+
+    --radius: 0.25rem;
+
+    /* Custom Colors */
+    /* Defence Olive Green */
+    --defence-green: 153 25% 25%;
+    --defence-green-dark: 153 30% 18%;
+    /* Army Gold/Brass */
+    --brass-gold: 43 48% 53%;
+    --brass-gold-light: 43 48% 60%;
+    /* Gunmetal Grey */
+    --gunmetal: 0 0% 43%;
+    /* Sand */
+    --sand: 45 24% 95%;
+    --sand-dark: 45 20% 88%;
+
+    /* Gradients - Minimal, no heavy gradients */
+    --gradient-hero: linear-gradient(180deg, hsl(153 25% 25%) 0%, hsl(153 30% 18%) 100%);
+    --gradient-overlay: linear-gradient(180deg, hsla(153 30% 15% / 0.85) 0%, hsla(153 35% 12% / 0.92) 100%);
+
+    /* Minimal Shadows - Government Portal Style */
+    --shadow-sm: 0 1px 2px hsla(0 0% 11% / 0.04);
+    --shadow-md: 0 2px 8px hsla(0 0% 11% / 0.08);
+    --shadow-lg: 0 4px 16px hsla(0 0% 11% / 0.1);
+    --shadow-card: 0 1px 3px hsla(0 0% 11% / 0.06);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border/20;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 py-16 lg:py-24;
+  }
+
+  .container-width {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Government Portal Style Cards - Minimal shadows, structured */
+  .card-gov {
+    @apply bg-card border border-gunmetal/20 transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-gov:hover {
+    box-shadow: var(--shadow-md);
+    border-color: hsl(var(--brass-gold) / 0.4);
+  }
+
+  .card-defence {
+    @apply bg-card border border-gray-300 transition-all duration-300;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-defence:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* Primary Button - Defence Green with Gold hover */
+  .btn-primary {
+    @apply px-6 py-3 font-semibold transition-all duration-200;
+    background-color: hsl(var(--defence-green));
+    color: hsl(var(--sand));
+  }
+
+  .btn-primary:hover {
+    background-color: hsl(var(--brass-gold));
+    color: hsl(var(--foreground));
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Accent Button - Army Gold/Brass */
+  .btn-accent {
+    @apply px-6 py-3 font-semibold transition-all duration-200;
+    background-color: hsl(var(--brass-gold));
+    color: hsl(var(--foreground));
+  }
+
+  .btn-accent:hover {
+    background-color: hsl(var(--brass-gold-light));
+  }
+
+  .btn-accent:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Outline Button */
+  .btn-outline {
+    @apply border-2 border-current bg-transparent px-6 py-3 font-semibold transition-all duration-200;
+  }
+
+  .btn-outline:hover {
+    background-color: hsl(var(--brass-gold) / 0.1);
+    border-color: hsl(var(--brass-gold));
+    color: hsl(var(--brass-gold));
+  }
+
+  /* Defence Green backgrounds */
+  .bg-defence {
+    background-color: hsl(var(--defence-green));
+  }
+
+  .bg-defence-dark {
+    background-color: hsl(var(--defence-green-dark));
+  }
+
+  .bg-defence-green {
+    background-color: hsl(var(--defence-green));
+  }
+
+  .text-defence-green {
+    color: hsl(var(--defence-green));
+  }
+
+  .text-brass-gold {
+    color: hsl(var(--brass-gold));
+  }
+
+  .bg-brass-gold {
+    background-color: hsl(var(--brass-gold));
+  }
+
+  .text-gunmetal {
+    color: hsl(var(--gunmetal));
+  }
+
+  .border-gunmetal {
+    border-color: hsl(var(--gunmetal));
+  }
+
+  .bg-sand-dark {
+    background-color: hsl(var(--sand-dark));
+  }
+
+  /* Gold accent for interactive elements */
+  .hover-gold:hover {
+    color: hsl(var(--brass-gold));
+  }
+
+  /* Gunmetal divider */
+  .divider-gunmetal {
+    background-color: hsl(var(--gunmetal));
+  }
+
+  /* Gold divider/accent line */
+  .divider-gold {
+    background-color: hsl(var(--brass-gold));
+  }
+
+  /* Section divider - Gold accent */
+  .section-divider {
+    @apply h-0.5 w-12;
+    background-color: hsl(var(--brass-gold));
+  }
+
+  /* Trust strip styling */
+  .trust-strip {
+    @apply bg-card border-y border-gunmetal/15;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

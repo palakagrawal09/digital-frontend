@@ -1,0 +1,337 @@
+import { useState } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { Send, FileText, Loader2, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { apiClient } from '@/lib/api';
+
+const validatePhone = (phone) => /^\d{10}$/.test(phone.replace(/\s+/g, ''));
+const validateEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+
+const PRODUCT_OPTIONS = [
+  { value: 'fire-control', label: 'Fire Control Systems (AMFDC)' },
+  { value: 'inspection', label: 'Gun Barrel Inspection (GBInP)' },
+  { value: 'surveillance', label: 'Field Surveillance (FSD/INVSS)' },
+  { value: 'simulators', label: 'Simulators & Training' },
+  { value: 'industrial', label: 'Industrial Automation' },
+  { value: 'services', label: 'Repair & AMC Services' },
+  { value: 'other', label: 'Other' },
+];
+
+const EnquiryPage = () => {
+  const navigate = useNavigate();
+  const [otpStep, setOtpStep] = useState('form'); // 'form' | 'otp' | 'verified'
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    organization: '',
+    subject: '',
+    product_interest: '',
+    message: '',
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const clearError = (field) => {
+    const newErrors = { ...errors };
+    delete newErrors[field];
+    setErrors(newErrors);
+  };
+
+  const validateForm = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Name is required';
+    if (!validateEmail(form.email)) e.email = 'Enter a valid email';
+    if (!validatePhone(form.phone)) e.phone = 'Enter a valid 10-digit phone number';
+    if (!form.subject.trim()) e.subject = 'Subject is required';
+    if (!form.message.trim()) e.message = 'Message is required';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSendOtp = async () => {
+    if (!validateEmail(form.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    setOtpSending(true);
+    try {
+      await apiClient.sendOtp(form.email, 'enquiry');
+      setOtpStep('otp');
+      alert('OTP sent! Check backend logs for the code.');
+    } catch (err) {
+      alert('Failed to send OTP: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) {
+      alert('Please enter the 6-digit code');
+      return;
+    }
+    setOtpVerifying(true);
+    try {
+      await apiClient.verifyOtp(form.email, otpCode);
+      setOtpStep('verified');
+      setVerifiedEmail(form.email);
+      alert('Email verified successfully!');
+    } catch (err) {
+      alert('Verification failed: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    if (verifiedEmail !== form.email) {
+      alert('Please verify your email before submitting');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await apiClient.submitEnquiry(form);
+      setSubmitted(true);
+      alert('Enquiry submitted successfully! We\'ll get back to you within 24 hours.');
+      setTimeout(() => navigate('/'), 2000);
+    } catch (err) {
+      alert('Submission failed: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetOtp = () => {
+    if (otpStep !== 'form') {
+      setOtpStep('form');
+      setOtpCode('');
+      setVerifiedEmail('');
+    }
+  };
+
+  const inputClass = 'w-full px-4 py-3 bg-card border border-gunmetal/20 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-brass-gold/60 focus:ring-1 focus:ring-brass-gold/30 transition-colors';
+  const labelClass = 'block text-base font-medium text-foreground mb-1.5';
+  const errorClass = 'text-red-500 text-sm mt-1';
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-24 pb-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl text-center">
+            <div className="bg-white border border-defence-green/30 p-12">
+              <ShieldCheck className="w-16 h-16 text-defence-green mx-auto mb-4" />
+              <h1 className="text-3xl font-bold text-foreground mb-4">Thank You!</h1>
+              <p className="text-muted-foreground">Your enquiry has been submitted successfully. We'll get back to you within 24 hours.</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="pt-24 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-foreground mb-4">How Can We Help?</h1>
+            <p className="text-muted-foreground text-lg">
+              Submit an enquiry for new products or request repair & maintenance support.
+            </p>
+          </div>
+
+          <div className="bg-white border border-gunmetal/15 p-8">
+            <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gunmetal/15">
+              <div className="w-10 h-10 bg-defence-green/10 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-defence-green" />
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground">New Enquiry</h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className={labelClass}>Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  className={`${inputClass} ${errors.name ? 'border-red-500' : ''}`}
+                  value={form.name}
+                  onChange={(e) => { setForm({ ...form, name: e.target.value }); clearError('name'); }}
+                />
+                {errors.name && <p className={errorClass}>{errors.name}</p>}
+              </div>
+
+              <div>
+                <label className={labelClass}>Email Address *</label>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    className={`${inputClass} flex-1 ${errors.email ? 'border-red-500' : ''}`}
+                    placeholder="you@company.com"
+                    value={form.email}
+                    onChange={(e) => {
+                      setForm({ ...form, email: e.target.value });
+                      clearError('email');
+                      if (verifiedEmail && e.target.value !== verifiedEmail) resetOtp();
+                    }}
+                    disabled={otpStep === 'verified'}
+                  />
+                  {otpStep === 'form' && (
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={otpSending || !validateEmail(form.email)}
+                      className="btn-primary px-4 py-3 flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {otpSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                      Verify
+                    </button>
+                  )}
+                  {otpStep === 'verified' && (
+                    <div className="flex items-center gap-1 px-3 bg-defence-green/10 border border-defence-green/30 text-defence-green font-medium">
+                      <ShieldCheck className="w-4 h-4" />
+                      Verified
+                    </div>
+                  )}
+                </div>
+                {errors.email && <p className={errorClass}>{errors.email}</p>}
+                {otpStep === 'otp' && (
+                  <div className="mt-3 p-4 bg-card border border-brass-gold/30">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Enter the 6-digit code sent to <strong>{form.email}</strong><br />
+                      <span className="text-xs text-brass-gold">Check backend logs: tail -f /var/log/supervisor/backend.err.log</span>
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        className={`${inputClass} flex-1 text-center text-lg tracking-[0.5em] font-mono`}
+                        placeholder="000000"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={otpVerifying || otpCode.length !== 6}
+                        className="btn-accent px-4 py-3 flex items-center gap-2"
+                      >
+                        {otpVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                        Confirm
+                      </button>
+                    </div>
+                    <button type="button" onClick={handleSendOtp} disabled={otpSending} className="text-sm text-brass-gold mt-2 hover:underline">
+                      Resend code
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass}>Phone Number * (10 digits)</label>
+                <input
+                  type="tel"
+                  required
+                  className={`${inputClass} ${errors.phone ? 'border-red-500' : ''}`}
+                  value={form.phone}
+                  onChange={(e) => { setForm({ ...form, phone: e.target.value }); clearError('phone'); }}
+                />
+                {errors.phone && <p className={errorClass}>{errors.phone}</p>}
+              </div>
+
+              <div>
+                <label className={labelClass}>Organization</label>
+                <input
+                  type="text"
+                  className={inputClass}
+                  value={form.organization}
+                  onChange={(e) => setForm({ ...form, organization: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Product / Service Interest</label>
+                <select
+                  className={inputClass}
+                  value={form.product_interest}
+                  onChange={(e) => setForm({ ...form, product_interest: e.target.value })}
+                >
+                  <option value="">Select area of interest</option>
+                  {PRODUCT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Subject *</label>
+                <input
+                  type="text"
+                  required
+                  className={`${inputClass} ${errors.subject ? 'border-red-500' : ''}`}
+                  value={form.subject}
+                  onChange={(e) => { setForm({ ...form, subject: e.target.value }); clearError('subject'); }}
+                />
+                {errors.subject && <p className={errorClass}>{errors.subject}</p>}
+              </div>
+
+              <div>
+                <label className={labelClass}>Detailed Requirements *</label>
+                <textarea
+                  required
+                  rows={5}
+                  className={`${inputClass} ${errors.message ? 'border-red-500' : ''}`}
+                  value={form.message}
+                  onChange={(e) => { setForm({ ...form, message: e.target.value }); clearError('message'); }}
+                />
+                {errors.message && <p className={errorClass}>{errors.message}</p>}
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || otpStep !== 'verified'}
+                className="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    Submit Enquiry
+                  </>
+                )}
+              </button>
+
+              {otpStep !== 'verified' && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Please verify your email before submitting
+                </p>
+              )}
+            </form>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default EnquiryPage;
