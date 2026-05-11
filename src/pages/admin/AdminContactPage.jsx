@@ -57,7 +57,7 @@ const loadContactPage = async () => {
     console.log("loadContactPage started");
     setLoading(true);
 
-    const response = await fetch("http://127.0.0.1:8000/api/contact");
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/contact`);
     console.log("fetch response status =", response.status);
 
     if (!response.ok) {

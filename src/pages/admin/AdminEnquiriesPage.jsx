@@ -153,6 +153,20 @@ const AdminEnquiriesPage = () => {
     }
   };
 
+  const updateEnquiryStatus = async (id, status) => {
+  try {
+    await apiClient.updateEnquiryStatus(id, {
+      status,
+      admin_note: "",
+    });
+
+    loadEnquiries();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update status");
+  }
+};
   const columns = [
     {
       key: "name",
@@ -198,11 +212,25 @@ const AdminEnquiriesPage = () => {
       title: "Date",
       render: (row) => formatDate(getCreatedAt(row)),
     },
-    {
-      key: "status",
-      title: "Status",
-      render: (row) => <StatusBadge status={getStatus(row)} />,
-    },
+   {
+  key: "status",
+  title: "Status",
+  render: (row) => (
+    <select
+      value={row.status || "Pending"}
+      onChange={(e) =>
+        updateEnquiryStatus(row.id, e.target.value)
+      }
+      className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    >
+      <option value="Pending">Pending</option>
+      <option value="In Review">In Review</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+      <option value="Completed">Completed</option>
+    </select>
+  ),
+},
     {
       key: "actions",
       title: "Actions",

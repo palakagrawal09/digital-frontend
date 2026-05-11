@@ -28,6 +28,9 @@ const navItems = [
   { label: "Contact", to: "/admin/contact", icon: Phone },
   { label: "Employees", to: "/admin/employees", icon: UserCog },
   { label: "Homepage Content", to: "/admin/homepage", icon: FolderKanban },
+  {
+  label: "Form Fields", path: "/admin/form-fields",
+}
 ];
 
 const AdminSidebar = () => {

@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 
 const EXCLUDED_CATEGORY_ID = "a9946fcb-a184-4597-91c8-cff5f2ac084e";
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 const iconMap = {
   Shield,
@@ -68,7 +68,7 @@ const DefenceSystemsPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/product-categories")
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/product-categories`)
       .then((res) => res.json())
       .then((data) => {
         const filteredCategories = data.filter(
@@ -78,7 +78,7 @@ const DefenceSystemsPage = () => {
       })
       .catch((err) => console.error("Category fetch error:", err));
 
-    fetch("http://127.0.0.1:8000/api/products")
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => {
         const filteredProducts = data.filter(

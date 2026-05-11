@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, Newspaper, Search } from "lucide-react";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 const News = () => {
   const [newsItems, setNewsItems] = useState([]);

@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 const logo = '/assets/dipl-logo.jpg';
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const resolveImageUrl = (path) => {
   if (!path) return "";
   const value = String(path).trim();

@@ -50,8 +50,8 @@ const Index = () => {
       <Header />
       <main className={loading ? 'opacity-95 transition-opacity' : 'opacity-100 transition-opacity'}>
         <Hero content={content.hero} />
-        <Credibility content={content.credibility} />
-        <About content={content.about} />
+        <Credibility content={content.Credibility} />
+        <About content={content.About} />
         <Capabilities content={content.capabilities} />
         <Contact content={content.contact} />
       </main>

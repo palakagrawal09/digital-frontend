@@ -15,7 +15,7 @@ import {
   Target,
 } from "lucide-react";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const statIconMap = {
   Calendar,
@@ -49,6 +49,9 @@ const certificationDescriptions = {
     "Society of Indian Defence Manufacturers (SIDM).",
 };
 
+const normalizeText = (value = "") =>
+  String(value).trim().toLowerCase();
+
 const normalizeImagePath = (path) => {
   if (!path) return "";
   if (Array.isArray(path)) return path[0] || "";
@@ -57,8 +60,16 @@ const normalizeImagePath = (path) => {
   return `/assets/${path.split("/").pop()}`;
 };
 
+const getSectionText = (item) => {
+  return item?.content || item?.description || "";
+};
+
+const cleanNewLines = (text = "") => {
+  return String(text).replace(/\\n/g, "\n").replace(/\/n/g, "\n").trim();
+};
+
 const extractOverviewContent = (description = "") => {
-  const text = description.replace(/\/n/g, "\n").trim();
+  const text = cleanNewLines(description);
 
   const visionMatch = text.match(/Our Vision\s*([\s\S]*?)(?=Our Mission|$)/i);
   const missionMatch = text.match(/Our Mission\s*([\s\S]*?)$/i);
@@ -81,7 +92,7 @@ const extractOverviewContent = (description = "") => {
 };
 
 const parseHighlights = (description = "") => {
-  const normalized = description.replace(/\/n/g, "\n");
+  const normalized = cleanNewLines(description);
   const parts = normalized.split(/Key Highlights/i);
 
   const bio = parts[0]?.trim() || "";
@@ -145,22 +156,19 @@ const AboutPage = () => {
           fetch(`${API_BASE_URL}/contact`),
         ]);
 
-        if (!categoriesRes.ok) {
-          throw new Error("Failed to fetch about categories");
-        }
-        if (!sectionsRes.ok) {
-          throw new Error("Failed to fetch about sections");
-        }
-        if (!contactRes.ok) {
-          throw new Error("Failed to fetch contact data");
-        }
+        if (!categoriesRes.ok) throw new Error("Failed to fetch about categories");
+        if (!sectionsRes.ok) throw new Error("Failed to fetch about sections");
+        if (!contactRes.ok) throw new Error("Failed to fetch contact data");
 
         const categoriesData = await categoriesRes.json();
         const sectionsData = await sectionsRes.json();
         const contactApiData = await contactRes.json();
 
-        setCategories(categoriesData);
-        setSections(sectionsData);
+        console.log("ABOUT CATEGORIES 👉", categoriesData);
+        console.log("ABOUT SECTIONS 👉", sectionsData);
+
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+        setSections(Array.isArray(sectionsData) ? sectionsData : []);
         setContactData(contactApiData);
       } catch (err) {
         console.error("About page fetch error:", err);
@@ -173,23 +181,67 @@ const AboutPage = () => {
     fetchPageData();
   }, []);
 
-  const getCategoryId = (name) =>
-    categories.find(
-      (item) => item.name?.trim().toLowerCase() === name.trim().toLowerCase()
-    )?.id;
+  const categoryMap = useMemo(() => {
+    const map = {};
+    categories.forEach((category) => {
+      map[category.id] = normalizeText(category.name || category.title || "");
+    });
+    return map;
+  }, [categories]);
 
-  const directorCategoryId = getCategoryId("Director");
-  const advisoryCategoryId = getCategoryId("Advisory");
-  const companyOverviewCategoryId = getCategoryId("Company Overview");
+  const companyOverview = useMemo(() => {
+    const item = sections.find((section) => {
+      const title = normalizeText(section.title);
+      const categoryName = categoryMap[section.category_id] || "";
+
+      return (
+        title.includes("company overview") ||
+        categoryName.includes("company overview") ||
+        categoryName.includes("overview")
+      );
+    });
+
+    if (!item) return null;
+
+    const content = extractOverviewContent(getSectionText(item));
+
+    return {
+      title: item.title,
+      image: normalizeImagePath(item.image_url),
+      introParagraphs: content.introParagraphs,
+      vision: content.vision,
+      mission: content.mission,
+    };
+  }, [sections, categoryMap]);
 
   const directors = useMemo(() => {
     return sections
-      .filter((item) => item.category_id === directorCategoryId)
+      .filter((item) => {
+        const categoryName = categoryMap[item.category_id] || "";
+        const title = normalizeText(item.title);
+        const designation = normalizeText(item.designation);
+
+        const isCompanyOverview =
+          title.includes("company overview") || categoryName.includes("overview");
+
+        const isAdvisor =
+          categoryName.includes("advisor") ||
+          categoryName.includes("advisory") ||
+          designation.includes("advisor") ||
+          designation.includes("advisory");
+
+        const isDirector =
+          categoryName.includes("director") ||
+          categoryName.includes("leadership") ||
+          designation.includes("director") ||
+          designation.includes("co-founder") ||
+          title.includes("director");
+
+        return isDirector && !isAdvisor && !isCompanyOverview;
+      })
       .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
       .map((item) => {
-        const { bio, achievements } = parseHighlights(
-          item.content || item.description || ""
-        );
+        const { bio, achievements } = parseHighlights(getSectionText(item));
 
         return {
           id: item.id,
@@ -200,40 +252,30 @@ const AboutPage = () => {
           achievements,
         };
       });
-  }, [sections, directorCategoryId]);
+  }, [sections, categoryMap]);
 
   const advisors = useMemo(() => {
     return sections
-      .filter((item) => item.category_id === advisoryCategoryId)
+      .filter((item) => {
+        const categoryName = categoryMap[item.category_id] || "";
+        const designation = normalizeText(item.designation);
+
+        return (
+          categoryName.includes("advisor") ||
+          categoryName.includes("advisory") ||
+          designation.includes("advisor") ||
+          designation.includes("advisory")
+        );
+      })
       .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
       .map((item) => ({
         id: item.id,
         name: item.title,
         designation: item.designation || "",
         photo: normalizeImagePath(item.image_url),
-        bio: item.content || item.description || "",
+        bio: cleanNewLines(getSectionText(item)),
       }));
-  }, [sections, advisoryCategoryId]);
-
-  const companyOverview = useMemo(() => {
-    const item = sections
-      .filter((section) => section.category_id === companyOverviewCategoryId)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))[0];
-
-    if (!item) return null;
-
-    const content = extractOverviewContent(
-      item.content || item.description || ""
-    );
-
-    return {
-      title: item.title,
-      image: normalizeImagePath(item.image_url),
-      introParagraphs: content.introParagraphs,
-      vision: content.vision,
-      mission: content.mission,
-    };
-  }, [sections, companyOverviewCategoryId]);
+  }, [sections, categoryMap]);
 
   const certifications = useMemo(() => {
     const apiCerts = contactData?.certifications || [];

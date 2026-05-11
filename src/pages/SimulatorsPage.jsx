@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import ScrollReveal from "../components/ScrollReveal";
 import { Target, Shield } from "lucide-react";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 const resolveImageUrl = (path) => {
   if (!path) return "";

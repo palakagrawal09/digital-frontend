@@ -167,7 +167,20 @@ const getIssue = (row) => {
       setDeleting(false);
     }
   };
+ const updateEnquiryStatus = async (id, status) => {
+  try {
+    await apiClient.updateEnquiryStatus(id, {
+      status,
+      admin_note: "",
+    });
 
+    loadEnquiries();
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update status");
+  }
+};
   const columns = [
     {
       key: "name",
@@ -217,7 +230,7 @@ const getIssue = (row) => {
 
     return firstImage ? (
       <img
-        src={`http://127.0.0.1:8000${firstImage}`}
+        src={`${process.env.REACT_APP_BACKEND_URL}${firstImage}`}
         alt="Repair Upload"
         className="h-12 w-16 rounded-lg border border-gray-200 object-cover"
       />
@@ -232,10 +245,24 @@ const getIssue = (row) => {
       render: (row) => formatDate(getCreatedAt(row)),
     },
     {
-      key: "status",
-      title: "Status",
-      render: (row) => <StatusBadge status={getStatus(row)} />,
-    },
+  key: "status",
+  title: "Status",
+  render: (row) => (
+    <select
+      value={row.status || "Pending"}
+      onChange={(e) =>
+        updateEnquiryStatus(row.id, e.target.value)
+      }
+      className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    >
+      <option value="Pending">Pending</option>
+      <option value="In Review">In Review</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+      <option value="Completed">Completed</option>
+    </select>
+  ),
+},
     {
       key: "actions",
       title: "Actions",
@@ -383,12 +410,25 @@ const getIssue = (row) => {
   <div className="flex flex-wrap gap-3">
     {(selectedRepair?.image_urls || []).length > 0 ? (
       selectedRepair.image_urls.map((img, index) => (
-        <img
-          key={index}
-          src={`http://127.0.0.1:8000${img}`}
-          alt={`Repair Upload ${index + 1}`}
-          className="h-24 w-24 rounded-lg border border-gray-200 object-cover"
-        />
+        <div
+  key={index}
+  className="flex flex-col items-center gap-2"
+>
+  <img
+    src={`${process.env.REACT_APP_BACKEND_URL}${img}`}
+    alt={`Repair Upload ${index + 1}`}
+    className="h-24 w-24 rounded-lg border border-gray-200 object-cover"
+  />
+
+  <a
+    href={`${process.env.REACT_APP_BACKEND_URL}/api/uploads/download/${img.split("/").pop()}`}
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-lg border border-gray-300 px-3 py-1 text-xs hover:bg-gray-100"
+  >
+    Download
+  </a>
+</div>
       ))
     ) : (
       <span className="text-sm text-gray-400">No uploaded images</span>

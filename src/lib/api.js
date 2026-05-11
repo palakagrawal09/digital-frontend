@@ -1,10 +1,26 @@
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000';
+/*const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
 const API_BASE = `${BACKEND_URL}/api`;
 
 const api = axios.create({
   baseURL: API_BASE,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('admin_token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});*/
+
+
+const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL?.replace(/\/$/, '') ||
+  'https://digital-backend-dsn7.onrender.com';
+
+const api = axios.create({
+  baseURL: `${BACKEND_URL}/api`,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -73,6 +89,51 @@ export const apiClient = {
   updateAboutSection: (sectionId, updates) => api.put(`/about-sections/${sectionId}`, updates),
   deleteAboutSection: (sectionId) => api.delete(`/about-sections/${sectionId}`),
 
+  updateEnquiryStatus: async (id, data) => {
+  return axios.put(
+    `${API_BASE_URL}/api/enquiries/${id}/status`,
+    data,
+    getAuthConfig()
+  );
+},
+
+updateRepairStatus: async (id, data) => {
+  return axios.put(
+    `${API_BASE_URL}/api/repairs/${id}/status`,
+    data,
+    getAuthConfig()
+  );
+},
+
+updateEnquiry: async (id, data) => {
+  return axios.put(
+    `${API_BASE_URL}/api/enquiries/${id}`,
+    data,
+    getAuthConfig()
+  );
+},
+
+updateRepair: async (id, data) => {
+  return axios.put(
+    `${API_BASE_URL}/api/repairs/${id}`,
+    data,
+    getAuthConfig()
+  );
+},
+
+deleteEnquiry: async (id) => {
+  return axios.delete(
+    `${API_BASE_URL}/api/enquiries/${id}`,
+    getAuthConfig()
+  );
+},
+
+deleteRepair: async (id) => {
+  return axios.delete(
+    `${API_BASE_URL}/api/repairs/${id}`,
+    getAuthConfig()
+  );
+},
   uploadFile: (file) => {
     const formData = new FormData();
     formData.append('file', file);
