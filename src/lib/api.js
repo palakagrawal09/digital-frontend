@@ -84,6 +84,19 @@ export const apiClient = {
   updateAboutCategory: (categoryId, updates) => api.put(`/about-categories/${categoryId}`, updates),
   deleteAboutCategory: (categoryId) => api.delete(`/about-categories/${categoryId}`),
 
+  getFormFields: (formType = null) =>
+  api.get("/form-fields", {
+    params: formType ? { form_type: formType } : {},
+  }),
+
+ createFormField: (data) => api.post("/form-fields", data),
+
+ updateFormField: (fieldId, updates) =>
+  api.put(`/form-fields/${fieldId}`, updates),
+
+ deleteFormField: (fieldId) =>
+  api.delete(`/form-fields/${fieldId}`),
+
   getAboutSections: (categoryId = null) => api.get('/about-sections', { params: categoryId ? { category_id: categoryId } : {} }),
   createAboutSection: (data) => api.post('/about-sections', data),
   updateAboutSection: (sectionId, updates) => api.put(`/about-sections/${sectionId}`, updates),

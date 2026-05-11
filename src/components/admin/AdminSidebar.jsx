@@ -29,8 +29,11 @@ const navItems = [
   { label: "Employees", to: "/admin/employees", icon: UserCog },
   { label: "Homepage Content", to: "/admin/homepage", icon: FolderKanban },
   {
-  label: "Form Fields", path: "/admin/form-fields",
+  label: "Form Fields",
+  to: "/admin/form-fields",
+  icon: FileText,
 }
+
 ];
 
 const AdminSidebar = () => {
