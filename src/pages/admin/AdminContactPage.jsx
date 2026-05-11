@@ -115,7 +115,7 @@ const loadContactPage = async () => {
     }));
   };
 
-  const handleNestedChange = (section, field, value) => {const handleNestedChange = (section, field, value) => {
+  const handleNestedChange = (section, field, value) => {
   setFormData((prev) => ({
     ...prev,
     [section]: {
@@ -123,7 +123,7 @@ const loadContactPage = async () => {
       [field]: value,
     },
   }));
-};};
+};
 
   const handleCertificationChange = (index, value) => {
     setFormData((prev) => {
@@ -175,7 +175,7 @@ const loadContactPage = async () => {
       setSaving(true);
       const payload = buildPayload();
       console.log("CONTACT PAYLOAD", payload);
-      await apiClient.updateContactPage?.(payload);
+      await apiClient.updateContactPage(payload);
       alert("Contact page updated successfully.");
       await loadContactPage();
     } catch (error) {

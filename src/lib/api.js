@@ -31,6 +31,10 @@ api.interceptors.request.use((config) => {
 });
 
 export const apiClient = {
+
+  getContactPage: () => api.get("/contact"),
+
+ updateContactPage: (data) => api.put("/contact", data),
   adminLogin: (username, password) => api.post('/admin/login', { username, password }),
   adminVerify: () => api.get('/admin/verify'),
 
