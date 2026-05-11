@@ -12,7 +12,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const EXCLUDED_CATEGORY_ID = "a9946fcb-a184-4597-91c8-cff5f2ac084e";
+const EXCLUDED_CATEGORY_ID = "4c4e41a0-1822-45b8-b148-c9f92e3005fd";
 const API_BASE_URL =
   process.env.REACT_APP_BACKEND_URL || "https://digital-backend-dsn7.onrender.com";
 
