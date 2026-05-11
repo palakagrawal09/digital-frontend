@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
 });*/
 
 
-const BACKEND_URL =
+export const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL?.replace(/\/$/, '') ||
   'https://digital-backend-dsn7.onrender.com';
 
