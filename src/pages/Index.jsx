@@ -22,7 +22,6 @@ const Index = () => {
 
   useEffect(() => {
     let isMounted = true;
-
     const loadHomepageContent = async () => {
       try {
         const res = await apiClient.getPageContent('homepage');
@@ -35,12 +34,8 @@ const Index = () => {
         if (isMounted) setLoading(false);
       }
     };
-
     loadHomepageContent();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   const content = useMemo(() => homepageContent, [homepageContent]);
@@ -50,8 +45,8 @@ const Index = () => {
       <Header />
       <main className={loading ? 'opacity-95 transition-opacity' : 'opacity-100 transition-opacity'}>
         <Hero content={content.hero} />
-        <Credibility content={content.Credibility} />
-        <About content={content.About} />
+        <Credibility content={content.credibility} />
+        <About content={content.about} />
         <Capabilities content={content.capabilities} />
         <Contact content={content.contact} />
       </main>

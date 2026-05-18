@@ -483,11 +483,18 @@ const AboutPage = () => {
                     className="card-defence p-6 h-full flex flex-col"
                   >
                     <div className="flex items-start gap-5 mb-5 min-h-[118px]">
-                      <img
-                        src={director.photo || "/assets/director-sunil-vyas.jpg"}
-                        alt={director.name}
-                        className="w-24 h-28 object-cover object-top border border-gunmetal/15 flex-shrink-0"
-                      />
+                      {director.photo ? (
+                        <img
+                          src={director.photo}
+                          alt={director.name}
+                          className="w-24 h-28 object-cover object-top border border-gunmetal/15 flex-shrink-0"
+                          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="w-24 h-28 bg-defence-green/10 border border-gunmetal/15 flex-shrink-0 flex items-center justify-center">
+                          <span className="text-3xl font-bold text-defence-green/40">{director.name?.[0] || "D"}</span>
+                        </div>
+                      )}
                       <div className="flex-1 pt-1">
                         <h3 className="text-[22px] md:text-[24px] leading-tight font-display font-semibold text-foreground mb-2">
                           {director.name}
@@ -545,11 +552,18 @@ const AboutPage = () => {
                     key={advisor.id}
                     className="card-defence p-6 text-center h-full flex flex-col items-center"
                   >
-                    <img
-                      src={advisor.photo || "/assets/advisor-satyevir-yadav.jpg"}
-                      alt={advisor.name}
-                      className="w-24 h-28 object-cover object-top mx-auto mb-5 border border-gunmetal/15"
-                    />
+                    {advisor.photo ? (
+                      <img
+                        src={advisor.photo}
+                        alt={advisor.name}
+                        className="w-24 h-28 object-cover object-top mx-auto mb-5 border border-gunmetal/15"
+                        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : (
+                      <div className="w-24 h-28 bg-defence-green/10 border border-gunmetal/15 mx-auto mb-5 flex items-center justify-center">
+                        <span className="text-3xl font-bold text-defence-green/40">{advisor.name?.[0] || "A"}</span>
+                      </div>
+                    )}
 
                     <h3 className="text-[22px] leading-tight font-display font-semibold text-foreground min-h-[56px] flex items-center justify-center">
                       {advisor.name}

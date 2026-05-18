@@ -1,23 +1,7 @@
 import axios from 'axios';
-
-/*const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
-const API_BASE = `${BACKEND_URL}/api`;
-
-const api = axios.create({
-  baseURL: API_BASE,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('admin_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});*/
-
-
 export const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL?.replace(/\/$/, '') ||
-  'https://digital-backend-dsn7.onrender.com';
+  'http://localhost:8000';
 
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api`,
@@ -35,8 +19,16 @@ export const apiClient = {
   getContactPage: () => api.get("/contact"),
 
  updateContactPage: (data) => api.put("/contact", data),
-  adminLogin: (username, password) => api.post('/admin/login', { username, password }),
+  adminLogin: (username, password, otp = null) => api.post('/admin/login', { username, password, ...(otp ? { otp } : {}) }),
   adminVerify: () => api.get('/admin/verify'),
+
+  // Admin management (super admin only)
+  getAdminUsers: () => api.get('/admin/users'),
+  createAdminUser: (data) => api.post('/admin/users', data),
+  deleteAdminUser: (id, otp) => api.delete(`/admin/users/${id}`, { data: { otp } }),
+  sendManagementOtp: () => api.post('/admin/send-management-otp'),
+  changePassword: (current_password, new_password) => api.put('/admin/change-password', { current_password, new_password }),
+  changeUsername: (new_username, current_password) => api.put('/admin/change-username', { new_username, current_password }),
 
   sendOtp: (email, formType = 'enquiry') => api.post('/otp/send', { email, form_type: formType }),
   verifyOtp: (email, otpCode) => api.post('/otp/verify', { email, otp_code: otpCode }),
@@ -106,51 +98,17 @@ export const apiClient = {
   updateAboutSection: (sectionId, updates) => api.put(`/about-sections/${sectionId}`, updates),
   deleteAboutSection: (sectionId) => api.delete(`/about-sections/${sectionId}`),
 
-  updateEnquiryStatus: async (id, data) => {
-  return axios.put(
-    `${API_BASE_URL}/api/enquiries/${id}/status`,
-    data,
-    getAuthConfig()
-  );
-},
+  updateEnquiryStatus: (id, data) => api.put(`/enquiries/${id}/status`, data),
 
-updateRepairStatus: async (id, data) => {
-  return axios.put(
-    `${API_BASE_URL}/api/repairs/${id}/status`,
-    data,
-    getAuthConfig()
-  );
-},
+  updateRepairStatus: (id, data) => api.put(`/repairs/${id}/status`, data),
 
-updateEnquiry: async (id, data) => {
-  return axios.put(
-    `${API_BASE_URL}/api/enquiries/${id}`,
-    data,
-    getAuthConfig()
-  );
-},
+  updateEnquiry: (id, data) => api.put(`/enquiries/${id}`, data),
 
-updateRepair: async (id, data) => {
-  return axios.put(
-    `${API_BASE_URL}/api/repairs/${id}`,
-    data,
-    getAuthConfig()
-  );
-},
+  updateRepair: (id, data) => api.put(`/repairs/${id}`, data),
 
-deleteEnquiry: async (id) => {
-  return axios.delete(
-    `${API_BASE_URL}/api/enquiries/${id}`,
-    getAuthConfig()
-  );
-},
+  deleteEnquiry: (id) => api.delete(`/enquiries/${id}`),
 
-deleteRepair: async (id) => {
-  return axios.delete(
-    `${API_BASE_URL}/api/repairs/${id}`,
-    getAuthConfig()
-  );
-},
+  deleteRepair: (id) => api.delete(`/repairs/${id}`),
   uploadFile: (file) => {
     const formData = new FormData();
     formData.append('file', file);

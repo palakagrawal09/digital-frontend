@@ -26,6 +26,7 @@ import AdminProductCategoriesPage from "@/pages/admin/AdminProductCategoriesPage
 import AdminAboutPage from "@/pages/admin/AdminAboutPage";
 import AdminHomepagePage from "@/pages/admin/AdminHomepagePage";
 import AdminFormFieldsPage from "@/pages/admin/AdminFormFieldsPage";
+import AdminManagementPage from "@/pages/admin/AdminManagementPage";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
           <Route path="/admin/employees" element={<AdminEmployeesPage />} />
           <Route path="/admin/product-categories" element={<AdminProductCategoriesPage />} />
           <Route path="/admin/form-fields" element={<AdminFormFieldsPage />} />
+          <Route path="/admin/management" element={<AdminManagementPage />} />
           <Route path="/admin/about" element={<AdminAboutPage />} />
         </Routes>
       </BrowserRouter>

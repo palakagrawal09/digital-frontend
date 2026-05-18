@@ -14,7 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const SIMULATOR_CATEGORY_ID = "4c4e41a0-1822-45b8-b148-c9f92e3005fd";
 const API_BASE_URL =
-  process.env.REACT_APP_BACKEND_URL || "https://digital-backend-dsn7.onrender.com";
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 const iconMap = { Shield, Search, Eye, Crosshair, AlertTriangle };
 
@@ -23,16 +23,15 @@ const isSimulatorCategory = (category) =>
   String(category?.name || "").toLowerCase().includes("simulator");
 
 const formatImagePath = (img) => {
-  if (!img || String(img).trim() === "") return "/assets/placeholder.jpg";
+  if (!img || String(img).trim() === "") return null;
   const value = String(img).trim();
-
   if (value.startsWith("http") || value.startsWith("data:") || value.startsWith("blob:")) return value;
   if (value.startsWith("/assets/")) return value;
   if (value.startsWith("assets/")) return `/${value}`;
   if (value.startsWith("/uploads/")) return `${API_BASE_URL}${value}`;
   if (value.startsWith("uploads/")) return `${API_BASE_URL}/${value}`;
+  // bare UUID filename
   if (!value.includes("/")) return `${API_BASE_URL}/uploads/${value}`;
-
   return `${API_BASE_URL}/${value.replace(/^\/+/, "")}`;
 };
 
@@ -284,7 +283,10 @@ const DefenceSystemsPage = () => {
                         const secondImage = formatImagePath(images[1] || images[0]);
 
                         const specs = item.specifications
-                          ? item.specifications.split("\n").map((line) => line.trim()).filter(Boolean)
+                          ? item.specifications
+                              .split(/\n|(?=[•●▪◦])|(?<=\w)\s*•/)
+                              .map((line) => line.trim().replace(/^[•●▪◦\-]\s*/, ""))
+                              .filter(Boolean)
                           : [];
 
                         const sectionReverse = index % 2 !== 0;
@@ -310,7 +312,7 @@ const DefenceSystemsPage = () => {
 
                                   {images.length > 1 ? (
                                     <div className="grid sm:grid-cols-2 gap-4">
-                                      {[firstImage, secondImage].map((src, i) => (
+                                      {[firstImage, secondImage].filter(Boolean).map((src, i) => (
                                         <div
                                           key={i}
                                           className="group overflow-hidden border border-[#d8d6cf] bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -321,13 +323,13 @@ const DefenceSystemsPage = () => {
                                             className="mx-auto h-auto max-h-[320px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
                                             onError={(e) => {
                                               e.currentTarget.onerror = null;
-                                              e.currentTarget.src = "/assets/placeholder.jpg";
+                                              e.currentTarget.parentElement.style.display = "none";
                                             }}
                                           />
                                         </div>
                                       ))}
                                     </div>
-                                  ) : (
+                                  ) : firstImage ? (
                                     <div className="group overflow-hidden border border-[#d8d6cf] bg-white p-4 max-w-xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                                       <img
                                         src={firstImage}
@@ -335,11 +337,11 @@ const DefenceSystemsPage = () => {
                                         className="mx-auto h-auto max-h-[380px] w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
                                         onError={(e) => {
                                           e.currentTarget.onerror = null;
-                                          e.currentTarget.src = "/assets/placeholder.jpg";
+                                          e.currentTarget.parentElement.style.display = "none";
                                         }}
                                       />
                                     </div>
-                                  )}
+                                  ) : null}
                                 </div>
 
                                 <div className="pt-2">
